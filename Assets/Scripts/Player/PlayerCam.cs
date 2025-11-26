@@ -10,11 +10,17 @@ public class PlayerCam : MonoBehaviour
     [SerializeField] private float zoomSens = 5;
     [SerializeField] private float maxZoom = 10;
     [SerializeField] private float minZoom = 2;
+
+    private float zoom = 5f;
     
 
     void FixedUpdate()
     {
         LookAtMouse();
+    }
+    void Update()
+    {
+        Zoom();
     }
 
     private void LookAtMouse()
@@ -30,7 +36,9 @@ public class PlayerCam : MonoBehaviour
 
     private void Zoom()
     {
-        float zoom = Mathf.Clamp(zoomSens, minZoom,maxZoom) * Input.mouseScrollDelta.y;
+        zoom += -Input.mouseScrollDelta.y * zoomSens;
+        zoom = Mathf.Clamp(zoom , minZoom, maxZoom);
+
         cineCam.Lens.OrthographicSize = zoom;
     }
 }

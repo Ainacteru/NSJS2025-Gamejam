@@ -4,8 +4,14 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody2D rb;
-    public float playerAccel = 10f;
-    public float maxSpeed = 8f;   
+
+    [Header("Walking")]
+    [SerializeField] private float playerAccel = 10f;
+    [SerializeField] private float maxSpeed = 8f;   
+    [Space]
+    [Header("Dash")]
+    [SerializeField] private float dashSpeed = 5f;
+    [SerializeField] private float dashCooldown = 1f;
 
     Vector2 input = new Vector2();
     void Awake()
@@ -22,6 +28,11 @@ public class PlayerMovement : MonoBehaviour
         HandleInput(Input.GetAxisRaw("Vertical"), Input.GetAxisRaw("Horizontal"));
 
         Move();
+        
+        if (Input.GetKeyDown(KeyCode.Mouse0)) // change later prob
+        {
+            Dash();
+        }
 
     }
 
@@ -40,5 +51,10 @@ public class PlayerMovement : MonoBehaviour
         input.y = vertAxis;
 
         input = input.normalized;
+    }
+
+    public void Dash()
+    {
+        rb.AddForce(transform.up * dashSpeed, ForceMode2D.Impulse);
     }
 }
