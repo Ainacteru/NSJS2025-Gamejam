@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -11,8 +12,10 @@ public class PlayerMovement : MonoBehaviour
     [Space]
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 5f;
-    [SerializeField] private float dashCooldown = 1f;
+    [SerializeField] private float dashCooldown = 0.5f;
+    private float dashtime = 0;
 
+    private Collision2D colliding;
     Vector2 input = new Vector2();
     void Awake()
     {
@@ -21,6 +24,14 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (dashtime > 0)
+            dashtime -= Time.deltaTime;
+
+        if (dashtime <= 0 && Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            Dash();
+            dashtime = dashCooldown;
+        }
     }
 
     void FixedUpdate()
@@ -28,11 +39,7 @@ public class PlayerMovement : MonoBehaviour
         HandleInput(Input.GetAxisRaw("Vertical"), Input.GetAxisRaw("Horizontal"));
 
         Move();
-        
-        if (Input.GetKeyDown(KeyCode.Mouse0)) // change later prob
-        {
-            Dash();
-        }
+    
 
     }
 
@@ -53,8 +60,20 @@ public class PlayerMovement : MonoBehaviour
         input = input.normalized;
     }
 
-    public void Dash()
+    private void Dash()
     {
         rb.AddForce(transform.up * dashSpeed, ForceMode2D.Impulse);
+    }
+
+
+        
+ 
+
+    void OnCollisionEnter2D(Collision2D col) {
+        colliding = col;
+    }
+
+    void OnCollisionExit2D(Collision2D col) {
+        colliding = null;
     }
 }
