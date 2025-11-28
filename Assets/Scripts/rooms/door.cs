@@ -10,6 +10,11 @@ public class door : MonoBehaviour
         coll = gameObject.GetComponent<Collider2D>();
     }
 
+    void Start()
+    {
+        Open();
+    }
+
     public void Close()
     {
         coll.isTrigger = false;
