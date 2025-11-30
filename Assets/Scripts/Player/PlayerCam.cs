@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class PlayerCam : MonoBehaviour
 {
-    [SerializeField] private Camera cam;
-    [SerializeField] private CinemachineCamera cineCam;
+    public Camera cam;
+    public CinemachineCamera cineCam;
+    public Animator camMator;
     
     [Header("Zoom")]
     [SerializeField] private float zoomSens = 5;

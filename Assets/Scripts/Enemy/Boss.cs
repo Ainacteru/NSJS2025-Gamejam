@@ -1,74 +1,158 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class Boss : MonoBehaviour
 {
     public static float bossHealth;
-    [SerializeField] private float spawnRadius;
+
+    [Header("Spawner Settings")]
+    [SerializeField] private float spawnRadius = 10f;
     [SerializeField] private GameObject spawner;
-    private bool bossActive = false;
 
+    [Header("Boss Settings")]
+    [SerializeField] private Transform player;
+    [SerializeField] private float dashForce = 15f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private TMP_Text bossHealthTxt;
+    public SceneManagera sceneManagera;
+
+    private bool bossStarted = false;
+    private Rigidbody2D rb;
+    public float moveSpeed = 10;
+
+    private void Start()
     {
         bossHealth = 1000;
+        rb = GetComponent<Rigidbody2D>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        while(bossActive && bossHealth > 0)
+        if (bossStarted == false && bossHealth > 0)
+            return;
+
+        if(bossStarted)
         {
-            startBoss();
+            bossHealthTxt.gameObject.SetActive(true);
+        }
+        bossHealthTxt.text = bossHealth.ToString();
+
+        if(bossHealth >= 0)
+        {
+            sceneManagera.ChangeScene("win");
         }
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        
-    }
-
-    void startBoss()
-    {
-        float rand = Random.Range(0, 5);
-        switch(rand)
+        // Bullet hits ONLY deal damage
+        if (collision.CompareTag("Bullet"))
         {
+            bossHealth -= PlayerShoot.bulletDamage;
+            return;
+        }
+
+        // Player triggers the fight
+        if (collision.CompareTag("Player") && bossStarted == false)
+        {
+            bossStarted = true;
+            bossHealthTxt.gameObject.SetActive(true);
+
+            Debug.Log("Boss Activated!");
+
+            // Boss should now collide physically
+            GetComponent<Collider2D>().isTrigger = false;
+
+            StartCoroutine(BossLoop());
+        }
+
+        if(collision.CompareTag("Player") && bossStarted)
+        {
+            PlayerShoot.playerHealth -= 20;
+        }
+    }
+  
+    private IEnumerator BossLoop()
+    {
+        while (bossHealth > 0)
+        {
+            yield return StartCoroutine(PerformBossAction());
+        }
+
+        Debug.Log("Boss Defeated!");
+    }    
+    private IEnumerator PerformBossAction()
+    {
+        int rand = Random.Range(0, 5);
+
+        MoveToPlayer();
+        switch (rand)
+        {   
             case 0:
-                StartCoroutine(SpawnSpawners());
-                return;
+                yield return StartCoroutine(SpawnSpawners());
+                break;
+            case 1:
+                Dash();
+                yield return new WaitForSeconds(1f);
+                break;
             default:
-                return;
+                yield return new WaitForSeconds(1f);
+                break;
         }
     }
 
-    IEnumerator SpawnSpawners()
+    private void MoveToPlayer()
     {
-        for (int i = 0; i < Random.Range(1, 10); i++)
+        if (player == null) return;
+
+        Vector2 direction = (player.position - transform.position).normalized;
+        rb.linearVelocity = direction * moveSpeed;
+    }
+
+    private void Dash()
+    {
+        if (player == null)
         {
-            startSpawners();
+            Debug.LogWarning("Player reference missing!");
+            return;
+        }
+
+        Vector2 direction = (player.position - transform.position).normalized;
+        rb.AddForce(direction * dashForce, ForceMode2D.Impulse);
+
+        Debug.Log("Boss Dash!");
+    }
+    private IEnumerator SpawnSpawners()
+    {
+        int spawnBursts = Random.Range(1, 10);
+
+        for (int i = 0; i < spawnBursts; i++)
+        {
+            SpawnSpawnerRing();
             yield return new WaitForSeconds(Random.Range(0.5f, 2f));
         }
     }
 
-    private void startSpawners()
+    private void SpawnSpawnerRing()
     {
         float spawnerAmount = GameManager.difficulty * 5;
 
         for (int i = 0; i < spawnerAmount; i++)
         {
             float angle = i * Mathf.PI * 2f / spawnerAmount;
-            
-            Vector2 localCircleOffset = new Vector2(Mathf.Cos(angle) * spawnRadius,Mathf.Sin(angle) * spawnRadius);
 
-            Vector3 worldSpawnPos = transform.TransformPoint(localCircleOffset);
+            Vector2 localOffset = new Vector2(
+                Mathf.Cos(angle) * spawnRadius,
+                Mathf.Sin(angle) * spawnRadius
+            );
 
-            Vector3 offset = new Vector3(Random.Range(-5, 5), Random.Range(-5, 5));
+            // Correct world-position calculation
+            Vector3 worldPos = transform.position + (Vector3)localOffset;
 
-            Instantiate(spawner, worldSpawnPos + offset, Quaternion.identity);
-            Debug.Log($"Original pos{worldSpawnPos}");
-            Debug.Log($" new pos {worldSpawnPos + offset}");
-
+            Instantiate(spawner, worldPos, Quaternion.identity);
+            Debug.Log("Spawner!");
         }
     }
+
 }

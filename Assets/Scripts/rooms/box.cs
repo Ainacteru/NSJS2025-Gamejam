@@ -8,7 +8,7 @@ public class box : MonoBehaviour
 
     [SerializeField] private float spawnRadius;
     [SerializeField] private GameObject spawner;
-    [ReadOnly, SerializeField] float enemiesRemaining;
+    [SerializeField] float enemiesRemaining;
     private bool roomStart = false;
 
     // Update is called once per frame

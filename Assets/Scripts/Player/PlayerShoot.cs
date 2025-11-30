@@ -7,10 +7,12 @@ public class PlayerShoot : MonoBehaviour
     [SerializeField] private float shootForce = 50f;
     public static float bulletDamage = 5;
     public static float playerHealth = 100;
+    public SceneManagera sceneManagera;
 
     void Start()
     {
         playerHealth = 100;
+        bulletDamage = 5;
     }
 
     // Update is called once per frame
@@ -21,9 +23,9 @@ public class PlayerShoot : MonoBehaviour
             shoot();
         }
 
-        if(playerHealth == 0)
+        if(playerHealth <= 0)
         {
-            //die
+            sceneManagera.ChangeScene("dead");
             Debug.Log("dieeeee");
         }
     }
