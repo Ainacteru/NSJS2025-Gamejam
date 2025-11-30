@@ -1,31 +1,25 @@
-using System;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class box : MonoBehaviour
 {
 
-    [SerializeField] private GameObject[] doors;
+    [SerializeField] private door[] doors;
     [SerializeField] private GameObject start;
 
     [SerializeField] private float spawnRadius;
     [SerializeField] private GameObject spawner;
-    private float enemiesRemaining;
-
-    void Awake()
-    {
-        foreach (var door in doors)
-        {
-            door.AddComponent<door>();
-        }
-
-    }
+    [ReadOnly, SerializeField] float enemiesRemaining;
+    private bool roomStart = false;
 
     // Update is called once per frame
     void Update()
     {
         enemiesRemaining = GameObject.FindGameObjectsWithTag("Enemy").Length;
 
+        if(roomStart && enemiesRemaining == 0)
+        {
+            roomDone();
+        }
     }
 
     public void startRoom()
@@ -33,21 +27,28 @@ public class box : MonoBehaviour
         Debug.Log($"Room {gameObject.name} has started!");
         roomLock();
         startSpawners();
+        roomStart = true;
     }
 
     private void roomDone()
     {
         foreach(var door in doors)
         {
-            door.GetComponent<door>().Open();
+            door.Open();
+            
+            Debug.Log($"Room {name} is complete!");
         }
+        GameManager.difficulty *= 1.2f;
+        GameManager.roomsBeaten++;
+        Destroy(this);
     }
 
     private void roomLock()
     {
         foreach(var door in doors)
         {
-            door.GetComponent<door>().Close();
+            door.Close();
+            Debug.Log($"Room {name} has locked!");
         }
     }
 
@@ -63,11 +64,12 @@ public class box : MonoBehaviour
 
             Vector3 worldSpawnPos = transform.TransformPoint(localCircleOffset);
 
-            Instantiate(spawner, worldSpawnPos, Quaternion.identity);
+            Vector3 offset = new Vector3(Random.Range(-5, 5), Random.Range(-5, 5));
 
+            Instantiate(spawner, worldSpawnPos + offset, Quaternion.identity);
+            Debug.Log($"Original pos{worldSpawnPos}");
+            Debug.Log($" new pos {worldSpawnPos + offset}");
 
         }
-
-
     }
 }

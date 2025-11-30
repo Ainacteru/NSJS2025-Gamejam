@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class door : MonoBehaviour
 {
-    Collider2D coll;
+    public Collider2D coll;
 
-    public Collider2D collision = null;
+    [HideInInspector] public Collider2D collision = null;
     void Awake()
     {
-        coll = gameObject.GetComponent<Collider2D>();
+        coll = GetComponent<Collider2D>();
     }
 
     void Start()
