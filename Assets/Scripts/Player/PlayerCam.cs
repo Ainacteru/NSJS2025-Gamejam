@@ -3,12 +3,13 @@ using UnityEngine;
 
 public class PlayerCam : MonoBehaviour
 {
-    [SerializeField] private Camera cam;
-    [SerializeField] private CinemachineCamera cineCam;
+    public Camera cam;
+    public CinemachineCamera cineCam;
+    public Animator camMator;
     
     [Header("Zoom")]
     [SerializeField] private float zoomSens = 5;
-    [SerializeField] private float maxZoom = 10;
+    [SerializeField] public float maxZoom = 10;
     [SerializeField] private float minZoom = 2;
 
     private float zoom = 5f;
@@ -37,7 +38,7 @@ public class PlayerCam : MonoBehaviour
     private void Zoom()
     {
         zoom += -Input.mouseScrollDelta.y * zoomSens;
-        zoom = Mathf.Clamp(zoom , minZoom, maxZoom);
+        zoom = Mathf.Clamp(zoom, minZoom, maxZoom);
 
         cineCam.Lens.OrthographicSize = zoom;
     }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ public class Enemy : MonoBehaviour
 
     [SerializeField] private float moveSpeed = 5;
     [SerializeField] private float health = 20;
+    [SerializeField] private float damage = 10;
 
     private GameObject player;
 
@@ -43,6 +45,31 @@ public class Enemy : MonoBehaviour
         {
             //die
             Destroy(gameObject);
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+            StartCoroutine(DamageWhileInContact(collision.gameObject));
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+            stopDamage = true;
+    }
+
+    bool stopDamage = false;
+
+    IEnumerator DamageWhileInContact(GameObject player)
+    {
+        stopDamage = false;
+        
+        while (!stopDamage)
+        {
+            PlayerShoot.playerHealth -= damage;
+            yield return new WaitForSeconds(0.5f);
         }
     }
 

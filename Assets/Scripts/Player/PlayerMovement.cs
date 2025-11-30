@@ -27,7 +27,7 @@ public class PlayerMovement : MonoBehaviour
         if (dashtime > 0)
             dashtime -= Time.deltaTime;
 
-        if (dashtime <= 0 && Input.GetKeyDown(KeyCode.Mouse0))
+        if (dashtime <= 0 && Input.GetKeyDown(KeyCode.R))
         {
             Dash();
             dashtime = dashCooldown;
